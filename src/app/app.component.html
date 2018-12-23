@@ -1,0 +1,42 @@
+<app-header [leftDrawer]="leftDrawer" [rightDrawer]="rightDrawer">Angular7 + MapBox test app</app-header>
+
+<mat-drawer-container class="sidenav-container">
+    <!--<mat-drawer-->
+    <!--#leftDrawer-->
+    <!--class="sidenav"-->
+    <!--position="start"-->
+    <!--fixedInViewport="true"-->
+    <!--[attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"-->
+    <!--[mode]="(isHandset$ | async) ? 'over' : 'side'"-->
+    <!--[opened]="!(isHandset$ | async)">-->
+    <!--&lt;!&ndash;[mode]="(isHandset$ | async) ? 'over' : 'side'"&ndash;&gt;-->
+    <!--&lt;!&ndash;[attr.role]="'navigation'"&ndash;&gt;-->
+    <!--&lt;!&ndash;[opened]="false">&ndash;&gt;-->
+    <!--<app-left-sidenav></app-left-sidenav>-->
+    <!--</mat-drawer>-->
+    <mat-drawer
+        #rightDrawer
+        class="sidenav"
+        position="end"
+        mode="side"
+        fixedInViewport="true"
+        [attr.role]="'dialog'"
+        [opened]="false">
+        <app-right-sidenav></app-right-sidenav>
+    </mat-drawer>
+    <mat-drawer-content>
+        <!-- Add Content Here -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <!--<app-breadcrumb></app-breadcrumb>-->
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </div>
+        <!--<button class="btn btn-primary" (click)="login()">Login</button>-->
+        <!--<button class="btn btn-outline-danger" (click)="logout()">Logout</button>-->
+    </mat-drawer-content>
+</mat-drawer-container>
+<app-footer></app-footer>
+

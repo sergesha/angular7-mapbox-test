@@ -1,0 +1,36 @@
+<app-map-toggles></app-map-toggles>
+<p>
+    map-view works!
+    with id: {{id}}
+</p>
+
+<mgl-map style="height: 500px; border: solid 1px; "
+         [style]="mapStyle"
+         [zoom]="mapZoom"
+         [center]="mapCenter"
+         (load)="onLoad($event)"
+         (click)="onClick($event)">
+    <mgl-control
+        mglNavigation
+    ></mgl-control>
+    <mgl-control
+        mglGeolocate
+        [trackUserLocation]="true"
+        [showUserLocation]="true"
+    ></mgl-control>
+    <mgl-geojson-source
+        id="symbols-source">
+        <mgl-feature
+            *ngFor="let marker of (markers$ | async)"
+            [geometry]="marker.geometry"
+        ></mgl-feature>
+    </mgl-geojson-source>
+</mgl-map>
+
+<!--<mgl-geojson-source-->
+<!--id="stations"-->
+<!--[data]="'assets/stations.geojson'"-->
+<!--[cluster]="true"-->
+<!--[clusterMaxZoom]="14"-->
+<!--[clusterRadius]="50"-->
+<!--&gt;</mgl-geojson-source>-->

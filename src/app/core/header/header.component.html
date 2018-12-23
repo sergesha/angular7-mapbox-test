@@ -1,0 +1,17 @@
+<mat-toolbar color="primary">
+
+    <button
+            type="button"
+            aria-label="Toggle sidenav"
+            mat-icon-button
+            (click)="toggleLeftDrawer()"
+            *ngIf="leftDrawer && leftDrawer.toggle">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+    <span><ng-content></ng-content></span>
+    <span style="flex: 1 1 auto"></span>
+    <button mat-icon-button (click)="toggleRightDrawer()">
+        <mat-icon>more_vert</mat-icon>
+    </button>
+
+</mat-toolbar>

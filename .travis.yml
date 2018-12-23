@@ -1,0 +1,44 @@
+language: node_js
+node_js:
+  - "8"
+dist: trusty
+sudo: false
+
+branches:
+  only:
+  - master
+
+before_script:
+  - npm install -g @angular/cli
+
+cache:
+  directories:
+  - node_modules
+
+install:
+  - npm install
+
+addons:
+  chrome: stable
+  apt:
+    sources:
+    - google-chrome
+    packages:
+    - google-chrome-stable
+
+
+script:
+  # - npm run lint
+  # - npm run test:headless
+  # - xvfb-run npm run e2e
+  # - ng test --watch=false --progress=false --browsers=ChromeHeadlessCI
+  # - ng e2e --protractor-config=./e2e/protractor-ci.conf.js
+  - ng build --prod --aot --base-href /angular7-mapbox-test/
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  local_dir: dist/angular7-mapbox-test
+  on:
+    branch: master

@@ -1,0 +1,2 @@
+ng generate entity FeatureOne --flat false -m features.module.ts
+ng generate effect FeatureOne --flat false -m features.module.ts  

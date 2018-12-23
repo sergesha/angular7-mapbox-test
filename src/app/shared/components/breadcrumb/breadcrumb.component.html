@@ -1,0 +1,6 @@
+    <mat-chip-list>
+      <mat-chip><a routerLink="">Home</a></mat-chip>
+      <mat-chip *ngFor="let breadcrumb of breadcrumbs">
+        <a [routerLink]="[breadcrumb.url, breadcrumb.params]">{{ breadcrumb.label }}</a>
+      </mat-chip>
+    </mat-chip-list>

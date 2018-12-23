@@ -1,0 +1,7 @@
+<!--<input type="text" [(ngModel)]="message" placeholder="your message...">-->
+<h2>POI</h2>
+<div *ngFor="let marker of markers$ | async">
+    <button class="mt-1 mb-1" mat-flat-button color="primary" (click)="selectMarker(marker)">{{ marker.properties.message }}</button>
+    <button class="mt-1 mb-1" mat-stroked-button color="warn" (click)="removeMarker(marker)">X</button>
+</div>
+
