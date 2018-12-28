@@ -6,7 +6,7 @@ import { GeoJsonFeature } from '@app/features/map/models/geo-json-feature.model'
 import { MapFeaturesService } from '@app/features/map/services/map-features.service';
 import * as mapboxgl from 'mapbox-gl';
 import { LngLatLike, MapMouseEvent } from 'mapbox-gl';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-map-view',
@@ -18,8 +18,7 @@ export class MapViewComponent implements OnInit, OnDestroy {
     subscriptions$: Subscription[];
     /// default settings
     map: mapboxgl.Map;
-    mapStyle = 'mapbox://styles/mapbox/outdoors-v9';
-    // mapStyle = 'mapbox://styles/mapbox/streets-v9';
+    mapStyle = 'mapbox://styles/mapbox/streets-v10';
     mapZoom = [13];
     mapCenter;
     mapLng;
@@ -29,7 +28,11 @@ export class MapViewComponent implements OnInit, OnDestroy {
     message = 'Hello World!';
     // data
     source: any;
-    markers$;
+
+    // markers$: Observable<GeoJsonFeature[]>;
+    markersCollection$: Observable<FeatureCollection>;
+
+    selectedPoint: GeoJSON.Feature<GeoJSON.Point> | null;
 
     // constructor(private route: ActivatedRouteSnapshot,  private state: RouterStateSnapshot) {
     constructor(private mapService: MapFeaturesService,
@@ -40,7 +43,8 @@ export class MapViewComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.mapCenter = CITY_COORDINATES.praha;
 
-        this.markers$ = this.mapService.getMarkers$();
+        // this.markers$ = this.mapService.getFeatures$();
+        this.markersCollection$ = this.mapService.getFeatureCollection$();
 
         this.subscriptions$ = [
             this.route.params
@@ -53,7 +57,7 @@ export class MapViewComponent implements OnInit, OnDestroy {
                         }
                     }
                 ),
-            this.mapService.selectedMarker$
+            this.mapService.selectedFeature$
                 .subscribe(
                     marker => {
                         if (marker && marker.geometry) {
@@ -69,58 +73,24 @@ export class MapViewComponent implements OnInit, OnDestroy {
     }
 
     onClick(event: MapMouseEvent) {
+        if ((<any>event).features && (<any>event).features[0]) {
+            this.selectedPoint = (<any>event).features[0];
+            return;
+        }
         if (event.lngLat) {
             const coordinates: LngLatLike = event.lngLat;
             // const newMarker = new GeoJsonFeature(coordinates, { message: this.message });
-            const newMarker = new GeoJsonFeature([coordinates.lng, coordinates.lat], { message: this.message });
-            this.mapService.createMarker(newMarker);
-            // this.store.dispatch(new fromMap.UpsertMapFeature({ mapFeature: newMarker }));
-            // console.log(event);
+            const newMarker = new GeoJsonFeature([coordinates.lng, coordinates.lat], {
+                message: this.message,
+                icon: 'triangle'
+            });
+            this.mapService.createFeature(newMarker);
         }
     }
 
     onLoad(event: any) {
-        this.map = event;
+        // this.map = event;
         // this.currentGeoLocation();
-        return;
-
-        // TODO: add layers etc.
-        /// register source
-        this.map.addSource('firebase', {
-            type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: []
-            }
-        });
-
-        /// get source
-        this.source = this.map.getSource('firebase');
-
-        /// subscribe to realtime database and set data source
-        // this.markers.snapshotChanges().subscribe(markers => {
-        //     let data = new FeatureCollection(markers);
-        //     this.source.setData(data);
-        // });
-
-        /// create map layers with realtime data
-        this.map.addLayer({
-            id: 'firebase',
-            source: 'firebase',
-            type: 'symbol',
-            layout: {
-                'text-field': '{message}',
-                'text-size': 24,
-                'text-transform': 'uppercase',
-                'icon-image': 'rocket-15',
-                'text-offset': [0, 1.5]
-            },
-            paint: {
-                'text-color': '#f16624',
-                'text-halo-color': '#fff',
-                'text-halo-width': 2
-            }
-        })
     }
 
     /// Helpers
@@ -140,11 +110,12 @@ export class MapViewComponent implements OnInit, OnDestroy {
         /// locate the user
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(position => {
-                this.mapLat = position.coords.latitude;
                 this.mapLng = position.coords.longitude;
-                this.map.flyTo({
-                    center: [this.mapLng, this.mapLat]
-                })
+                this.mapLat = position.coords.latitude;
+                this.mapCenter = [this.mapLng, this.mapLat];
+                // this.map.flyTo({
+                //     center: [this.mapLng, this.mapLat]
+                // })
             });
         }
     }

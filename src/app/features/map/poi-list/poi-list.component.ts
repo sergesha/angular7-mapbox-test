@@ -15,14 +15,14 @@ export class PoiListComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.markers$ = this.mapService.getMarkers$();
+        this.markers$ = this.mapService.getFeatures$();
     }
 
     removeMarker(marker) {
-        this.mapService.removeMarker(retrieveFeatureId(marker));
+        this.mapService.removeFeature(retrieveFeatureId(marker));
     }
 
     selectMarker(data: GeoJsonFeature) {
-        this.mapService.selectMarker(data);
+        this.mapService.selectFeature(data);
     }
 }

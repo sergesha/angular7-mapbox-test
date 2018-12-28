@@ -12,8 +12,24 @@ import * as fromMap from './store/map.actions';
 })
 export class MapComponent implements OnInit {
     markers = [
-        new GeoJsonFeature(CITY_COORDINATES.praha, { id: 'praha', message: 'Ahoj, Praha!' }),
-        new GeoJsonFeature(CITY_COORDINATES.kaliningrad, { id: 'kaliningrad', message: 'Привет, Калининград!' }),
+        new GeoJsonFeature([CITY_COORDINATES.praha.lng, CITY_COORDINATES.praha.lat], {
+            id: 'praha',
+            message: 'Ahoj, Praha!',
+            description: 'Ahoj, Praha!',
+            icon: 'star'
+        }),
+        new GeoJsonFeature([CITY_COORDINATES.kaliningrad.lng, CITY_COORDINATES.kaliningrad.lat], {
+            id: 'kaliningrad',
+            message: 'Привет, Калининград!',
+            description: 'Привет, Калининград!',
+            icon: 'star'
+        }),
+        new GeoJsonFeature([14.48897221919043, 50.095505590365036], {
+            message: 'Good Bar',
+            description: '<strong>Make it Mount Pleasant</strong><p><a href="http://www.mtpleasantdc.com/makeitmtpleasant" target="_blank" title="Opens in a new window">Make it Mount Pleasant</a> is a handmade and vintage market and afternoon of live entertainment and kids activities. 12:00-6:00 p.m.</p>',
+            icon: 'circle-stroked'
+        }),
+
     ];
 
     constructor(private store: Store<AppState>) {

@@ -1,56 +1,49 @@
 import { Injectable } from '@angular/core';
-import { CITY_COORDINATES } from '@app/features/map/city-coordinates';
+import { FeatureCollection } from '@app/features/map/models/feature-collection.model';
 import { GeoJsonFeature } from '@app/features/map/models/geo-json-feature.model';
 import { mapSelectors } from '@app/features/map/store/map.selectors';
 import { AppState } from '@app/store/app.reducer';
 import { select, Store } from '@ngrx/store';
-import { LngLatLike } from 'mapbox-gl';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import * as fromMap from '../store/map.actions';
-
-
-export let markers = [
-    new GeoJsonFeature(CITY_COORDINATES.praha, { message: 'Ahoj, Praha!' }),
-    new GeoJsonFeature(CITY_COORDINATES.kaliningrad, { message: 'Привет, Калининград!' }),
-];
 
 @Injectable()
 export class MapFeaturesService {
-    selectedMarker$ = new BehaviorSubject<GeoJsonFeature>(null);
+    selectedFeature$ = new BehaviorSubject<GeoJsonFeature>(null);
 
     constructor(private store: Store<AppState>) {
     }
 
-    getMarkers$(): Observable<any> {
+    getFeatures$(): Observable<GeoJsonFeature[]> {
         return this.store.pipe(select(mapSelectors.selectMapFeatures));
-        // getMarkers$(): Observable<any> {
-        //     return of(markers);
-        // return this.db.list('/markers')
     }
 
-    getSelectedMarker$(): Observable<GeoJsonFeature> {
-        return this.selectedMarker$;
+    getFeatureCollection$(): Observable<FeatureCollection> {
+        return this.store.pipe(
+            select(mapSelectors.selectMapFeatures),
+            map(features => {
+                return {
+                    'type': 'FeatureCollection',
+                    'features': features
+                } as FeatureCollection
+            })
+        );
     }
 
-    selectMarker(data: GeoJsonFeature) {
-        this.selectedMarker$.next(data);
+    getSelectedFeatures$(): Observable<GeoJsonFeature> {
+        return this.selectedFeature$;
     }
 
-    createMarker(data: GeoJsonFeature) {
-        this.store.dispatch(new fromMap.AddMapFeature({ mapFeature: data }));
-        // return this.db.list('/markers')
-        // // markers
-        //     .push(data);
+    selectFeature(feature: GeoJsonFeature) {
+        this.selectedFeature$.next(feature);
     }
 
-    removeMarker(id: string) {
+    createFeature(feature: GeoJsonFeature) {
+        this.store.dispatch(new fromMap.AddMapFeature({ mapFeature: feature }));
+    }
+
+    removeFeature(id: string) {
         this.store.dispatch(new fromMap.DeleteMapFeature({ id }));
-        // return this.db.object('/markers/' + $key).remove()
-    }
-
-    flyTo(data: GeoJsonFeature) {
-        // this.map.flyTo({
-        //     center: data.geometry.coordinates as LngLatLike
-        // })
     }
 }

@@ -19,12 +19,37 @@
         [showUserLocation]="true"
     ></mgl-control>
     <mgl-geojson-source
-        id="symbols-source">
-        <mgl-feature
-            *ngFor="let marker of (markers$ | async)"
-            [geometry]="marker.geometry"
-        ></mgl-feature>
-    </mgl-geojson-source>
+        id="markers-source"
+        [data]="markersCollection$ | async"
+    ></mgl-geojson-source>
+    <mgl-layer
+        id="markers-layer"
+        source="markers-source"
+        type="symbol"
+        [layout]="{
+            'text-field': '{message}',
+            'text-size': 24,
+            'text-transform': 'uppercase',
+            'icon-image': '{icon}-15',
+            'icon-size': 2,
+            'text-offset': [0, 1.5],
+            'icon-allow-overlap': true
+        }"
+        [paint]="{
+            'text-color': '#f16624',
+            'text-halo-color': '#fff',
+            'text-halo-width': 2
+        }"
+        (click)="onClick($event)"
+        (mouseEnter)="cursorStyle = 'pointer'"
+        (mouseLeave)="cursorStyle = ''"
+    ></mgl-layer>
+    <mgl-popup
+        *ngIf="selectedPoint"
+        [lngLat]="selectedPoint.geometry?.coordinates"
+    >
+        <span [innerHTML]="selectedPoint.properties?.description"></span>
+    </mgl-popup>
 </mgl-map>
 
 <!--<mgl-geojson-source-->
