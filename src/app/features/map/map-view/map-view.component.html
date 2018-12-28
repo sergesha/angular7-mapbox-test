@@ -41,9 +41,10 @@
             'text-halo-width': 2
         }"
         (click)="onClick($event)"
-        (mouseEnter)="cursorStyle = 'pointer'"
-        (mouseLeave)="cursorStyle = ''"
     ></mgl-layer>
+    <!--TODO: cursorStyle-->
+    <!--(mouseEnter)="cursorStyle = 'pointer'"-->
+    <!--(mouseLeave)="cursorStyle = ''"-->
     <mgl-popup
         *ngIf="selectedPoint"
         [lngLat]="selectedPoint.geometry?.coordinates"
