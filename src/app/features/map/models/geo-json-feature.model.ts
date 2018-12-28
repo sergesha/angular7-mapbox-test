@@ -32,14 +32,5 @@ export class GeoJsonFeature implements IGeoJson {
             type: 'Point',
             coordinates: coordinates
         };
-        // const { id } = properties;
-        // if (id) {
-        //     this.id = id;
-        // } else {
-        //     this.id = 'Feature@'
-        //         + (this.geometry.coordinates[0] || this.geometry.coordinates['lng'] || this.geometry.coordinates['lon'])
-        //         + '|'
-        //         + (this.geometry.coordinates[1] || this.geometry.coordinates['lat']);
-        // }
     }
 }
