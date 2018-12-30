@@ -23,6 +23,7 @@ export class MapViewComponent implements OnInit, OnDestroy {
     mapCenter;
     mapLng;
     mapLat;
+    overFeature = false;
 
     // ---
     message = 'Hello World!';
@@ -73,15 +74,16 @@ export class MapViewComponent implements OnInit, OnDestroy {
     }
 
     onClick(event: MapMouseEvent) {
-        if ((<any>event).features && (<any>event).features[0]) {
+        if (this.overFeature && (<any>event).features && (<any>event).features[0]) {
             this.selectedPoint = (<any>event).features[0];
             return;
         }
-        if (event.lngLat) {
+        if (!this.overFeature && event.lngLat) {
             const coordinates: LngLatLike = event.lngLat;
             // const newMarker = new GeoJsonFeature(coordinates, { message: this.message });
             const newMarker = new GeoJsonFeature([coordinates.lng, coordinates.lat], {
                 message: this.message,
+                description: 'My POI',
                 icon: 'triangle'
             });
             this.mapService.createFeature(newMarker);

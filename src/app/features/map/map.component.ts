@@ -26,8 +26,8 @@ export class MapComponent implements OnInit {
         }),
         new GeoJsonFeature([14.48897221919043, 50.095505590365036], {
             message: 'Good Bar',
-            description: '<strong>Make it Mount Pleasant</strong><p><a href="http://www.mtpleasantdc.com/makeitmtpleasant" target="_blank" title="Opens in a new window">Make it Mount Pleasant</a> is a handmade and vintage market and afternoon of live entertainment and kids activities. 12:00-6:00 p.m.</p>',
-            icon: 'circle-stroked'
+            description: '<strong>Good bar</strong><p><a href="http://www.restauracekobyla.cz/" target="_blank" title="Opens in a new window">Restaurace Kobyla</a></p>',
+            icon: 'bar'
         }),
 
     ];

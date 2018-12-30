@@ -16,12 +16,11 @@
     <!--</mat-drawer>-->
     <mat-drawer
         #rightDrawer
-        class="sidenav"
-        position="end"
-        mode="side"
-        fixedInViewport="true"
         [attr.role]="'dialog'"
-        [opened]="false">
+        [opened]="false"
+        class="sidenav"
+        mode="side"
+        position="end">
         <app-right-sidenav></app-right-sidenav>
     </mat-drawer>
     <mat-drawer-content>
@@ -39,4 +38,3 @@
     </mat-drawer-content>
 </mat-drawer-container>
 <app-footer></app-footer>
-
