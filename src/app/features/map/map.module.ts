@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
+import { FormsModule } from '@angular/forms';
 import { APP_CONFIG } from '@app/app-config';
 import { MapRoutingModule } from '@app/features/map/map-routing.module';
 import { PoiListComponent } from '@app/features/map/poi-list/poi-list.component';
@@ -23,6 +24,7 @@ import * as fromMap from './store/map.reducer';
     ],
     imports: [
         SharedModule,
+        FormsModule,
         MapRoutingModule,
         StoreModule.forFeature('mapFeatures', fromMap.reducer),
         EffectsModule.forFeature([MapEffects]),

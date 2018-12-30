@@ -1,3 +1,12 @@
-<p style="height: 2rem; border: solid 1px; background-color: dodgerblue">
-  map-toggles works!
-</p>
+<!--<p style="height: 2rem; border: solid 1px; background-color: dodgerblue">-->
+  <!--map-toggles works!-->
+<!--</p>-->
+<mat-card>
+    <mat-card-content>
+        <section class="content-section">
+            <mat-checkbox class="m-1" [(ngModel)]="airports" (change)="onChange('airports-layer', airports)">Airports</mat-checkbox>
+            <mat-checkbox class="m-1" [(ngModel)]="ports" (change)="onChange('ports-layer', ports)">Ports</mat-checkbox>
+            <mat-checkbox class="m-1" [(ngModel)]="pois" (change)="onChange('pois-layer', pois)">POIs</mat-checkbox>
+        </section>
+    </mat-card-content>
+</mat-card>

@@ -12,4 +12,5 @@ export const selectMapState = createFeatureSelector<MapState>('mapFeatures');
 
 export const mapSelectors = {
     selectMapFeatures: createSelector(selectMapState, selectAll),
+    selectVisibleLayers: createSelector(selectMapState, (state: MapState) => state.visibleLayers)
 };

@@ -4,6 +4,7 @@ import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 
 export interface MapState extends EntityState<GeoJsonFeature> {
     // additional entities state properties
+    visibleLayers: { [key: string]: boolean }
 }
 
 export const retrieveFeatureId = (feature: GeoJsonFeature) => {
@@ -26,6 +27,7 @@ export const adapter: EntityAdapter<GeoJsonFeature> = createEntityAdapter<GeoJso
 
 export const initialState: MapState = adapter.getInitialState({
     // additional entity state properties
+    visibleLayers: {}
 });
 
 export function reducer(
@@ -75,6 +77,26 @@ export function reducer(
 
         case MapActionTypes.ClearMapFeatures: {
             return adapter.removeAll(state);
+        }
+
+        case MapActionTypes.ShowMapLayer: {
+            return {
+                ...state,
+                visibleLayers: {
+                    ...state.visibleLayers,
+                    [action.payload.layer]: true
+                }
+            };
+        }
+
+        case MapActionTypes.HideMapLayer: {
+            return {
+                ...state,
+                visibleLayers: {
+                    ...state.visibleLayers,
+                    [action.payload.layer]: false
+                }
+            };
         }
 
         default: {

@@ -19,7 +19,7 @@ export class MapViewComponent implements OnInit, OnDestroy {
     /// default settings
     map: mapboxgl.Map;
     mapStyle = 'mapbox://styles/mapbox/streets-v10';
-    mapZoom = [13];
+    mapZoom = [5];
     mapCenter;
     mapLng;
     mapLat;
@@ -28,10 +28,11 @@ export class MapViewComponent implements OnInit, OnDestroy {
     // ---
     message = 'Hello World!';
     // data
-    source: any;
+    // source: any;
 
     // markers$: Observable<GeoJsonFeature[]>;
     markersCollection$: Observable<FeatureCollection>;
+    visibleLayers$: Observable<{[key: string]: boolean}>;
 
     selectedPoint: GeoJSON.Feature<GeoJSON.Point> | null;
 
@@ -46,6 +47,7 @@ export class MapViewComponent implements OnInit, OnDestroy {
 
         // this.markers$ = this.mapService.getFeatures$();
         this.markersCollection$ = this.mapService.getFeatureCollection$();
+        this.visibleLayers$ = this.mapService.getVisibleLayers$();
 
         this.subscriptions$ = [
             this.route.params
@@ -63,6 +65,20 @@ export class MapViewComponent implements OnInit, OnDestroy {
                     marker => {
                         if (marker && marker.geometry) {
                             this.mapCenter = marker.geometry.coordinates;
+                        }
+                    }
+                ),
+            this.visibleLayers$
+                .subscribe(
+                    layers => {
+                        for (let key of Object.keys(layers)) {
+                            const visibility = layers[key] ? 'visible' : 'none';
+                            if (this.map) {
+                                const prop = this.map.getLayoutProperty(key, 'visibility');
+                                if (typeof prop !== 'undefined' && prop !== visibility) {
+                                    this.map.setLayoutProperty(key, 'visibility', visibility);
+                                }
+                            }
                         }
                     }
                 )
@@ -91,8 +107,95 @@ export class MapViewComponent implements OnInit, OnDestroy {
     }
 
     onLoad(event: any) {
-        // this.map = event;
-        // this.currentGeoLocation();
+        this.map = event;
+        this.currentGeoLocation();
+
+        this.addFeatureLayer('airports', {
+            name: 'name',
+            class: 'featureclass',
+            link: 'wikipedia'
+        }, 'airport');
+        this.mapService.showLayer('airports-layer');
+
+        this.addFeatureLayer('ports', {
+            name: 'name',
+            class: 'featureclass',
+            link: 'website'
+        }, 'harbor');
+        this.mapService.showLayer('ports-layer');
+    }
+
+    addFeatureLayer(featureName, featureFields, featureIcon, featureColor?) {
+        const map = this.map;
+        let overFeature = this.overFeature;
+
+        this.map.addSource(`${featureName}-source`, {
+            type: 'geojson',
+            data: `assets/${featureName}.geojson`
+            // data: {
+            //     type: 'FeatureCollection',
+            //     features: []
+            // }
+        });
+
+        /// get source
+        // this.source = this.map.getSource('airports');
+        //
+        // /// subscribe to realtime database and set data source
+        // this.markers.subscribe(markers => {
+        //     let data = new FeatureCollection(markers)
+        //     this.source.setData(data)
+        // });
+
+        /// create map layers with realtime data
+        this.map.addLayer({
+            id: `${featureName}-layer`,
+            source: `${featureName}-source`,
+            type: 'symbol',
+            layout: {
+                'text-field': '{name}',
+                'text-size': 24,
+                'text-transform': 'uppercase',
+                'icon-image': `${featureIcon}-15`,
+                'icon-size': 2,
+                'text-offset': [0, 1.5]
+            },
+            paint: {
+                // 'text-color': `${featureColor}`,
+                'text-halo-color': '#fff',
+                'text-halo-width': 2
+            }
+        });
+
+        this.map.on('click', `${featureName}-layer`, function (e) {
+            const coordinates = e.features[0].geometry['coordinates'].slice();
+            const props = e.features[0].properties;
+            const description = `<strong>${props[featureFields.class]}: ${props[featureFields.name]}</strong><p><a href="//${props[featureFields.link]}" target="_blank" title="Opens in a new window">Go to Website</a></p>`;
+
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(description)
+                .addTo(map);
+        });
+
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        this.map.on('mouseenter', `${featureName}-layer`, function () {
+            overFeature = true;
+            map.getCanvas().style.cursor = 'help';
+        });
+
+        // Change it back to a pointer when it leaves.
+        this.map.on('mouseleave', `${featureName}-layer`, function () {
+            overFeature = false;
+            map.getCanvas().style.cursor = 'pointer';
+        });
     }
 
     /// Helpers

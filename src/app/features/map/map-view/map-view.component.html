@@ -21,12 +21,12 @@
         [showUserLocation]="true"
     ></mgl-control>
     <mgl-geojson-source
-        id="markers-source"
+        id="pois-source"
         [data]="markersCollection$ | async"
     ></mgl-geojson-source>
     <mgl-layer
-        id="markers-layer"
-        source="markers-source"
+        id="pois-layer"
+        source="pois-source"
         type="symbol"
         [layout]="{
             'text-field': '{message}',

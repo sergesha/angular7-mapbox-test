@@ -1,16 +1,23 @@
 <!--<input type="text" [(ngModel)]="message" placeholder="your message...">-->
-<div class="mat-caption text-center">My POI list</div>
-<div class="row mt-1 mb-1" *ngFor="let marker of markers$ | async">
-    <div class="col-10">
-        <button mat-flat-button style="width: 100%" color="primary"
-                (click)="selectMarker(marker)">
-            {{ marker.properties?.message }}
-        </button>
-    </div>
-    <div class="col-1">
-        <button mat-icon-button color="accent" (click)="removeMarker(marker)">
-            <mat-icon aria-label="Delete POI">delete</mat-icon>
-        </button>
-    </div>
-</div>
+<mat-card>
+    <mat-card-content>
+        <section class="content-section">
 
+            <h3 class="mat-headline text-center">My POIs</h3>
+            <div *ngFor="let marker of markers$ | async" class="row mt-1 mb-1">
+                <div class="col-10">
+                    <button (click)="selectMarker(marker)" color="primary" mat-flat-button
+                            style="width: 100%">
+                        {{ marker.properties?.message }}
+                    </button>
+                </div>
+                <div class="col-1">
+                    <button (click)="removeMarker(marker)" color="accent" mat-icon-button>
+                        <mat-icon aria-label="Delete POI">delete</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </mat-card-content>
+</mat-card>

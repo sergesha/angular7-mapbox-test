@@ -4,15 +4,17 @@ import { Action } from '@ngrx/store';
 
 export enum MapActionTypes {
     LoadMapFeatures = '[Map] Load Map Feature',
-    AddMapFeature = '[Map] Add MapFeature',
-    UpsertMapFeature = '[Map] Upsert MapFeature',
-    AddMapFeatures = '[Map] Add MapFeatures',
-    UpsertMapFeatures = '[Map] Upsert MapFeatures',
-    UpdateMapFeature = '[Map] Update MapFeature',
-    UpdateMapFeatures = '[Map] Update MapFeatures',
-    DeleteMapFeature = '[Map] Delete MapFeature',
-    DeleteMapFeatures = '[Map] Delete MapFeatures',
-    ClearMapFeatures = '[Map] Clear MapFeatures'
+    AddMapFeature = '[Map] Add Map Feature',
+    UpsertMapFeature = '[Map] Upsert Map Feature',
+    AddMapFeatures = '[Map] Add Map Features',
+    UpsertMapFeatures = '[Map] Upsert Map Features',
+    UpdateMapFeature = '[Map] Update Map Feature',
+    UpdateMapFeatures = '[Map] Update Map Features',
+    DeleteMapFeature = '[Map] Delete Map Feature',
+    DeleteMapFeatures = '[Map] Delete Map Features',
+    ClearMapFeatures = '[Map] Clear Map Features',
+    ShowMapLayer = '[Map] Show Map Layer',
+    HideMapLayer = '[Map] Hide Map Layer',
 }
 
 export class LoadMapFeatures implements Action {
@@ -82,6 +84,20 @@ export class ClearMapFeatures implements Action {
     readonly type = MapActionTypes.ClearMapFeatures;
 }
 
+export class ShowMapLayer implements Action {
+    readonly type = MapActionTypes.ShowMapLayer;
+
+    constructor(public payload: { layer: string }) {
+    }
+}
+
+export class HideMapLayer implements Action {
+    readonly type = MapActionTypes.HideMapLayer;
+
+    constructor(public payload: { layer: string }) {
+    }
+}
+
 export type MapActions =
     | LoadMapFeatures
     | AddMapFeature
@@ -92,4 +108,6 @@ export type MapActions =
     | UpdateMapFeatures
     | DeleteMapFeature
     | DeleteMapFeatures
-    | ClearMapFeatures;
+    | ClearMapFeatures
+    | ShowMapLayer
+    | HideMapLayer;

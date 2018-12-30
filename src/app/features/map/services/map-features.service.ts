@@ -46,4 +46,16 @@ export class MapFeaturesService {
     removeFeature(id: string) {
         this.store.dispatch(new fromMap.DeleteMapFeature({ id }));
     }
+
+    showLayer(layer: string) {
+        this.store.dispatch(new fromMap.ShowMapLayer({ layer: layer }));
+    }
+
+    hideLayer(layer: string) {
+        this.store.dispatch(new fromMap.HideMapLayer({ layer: layer }));
+    }
+
+    getVisibleLayers$(): Observable<{[key: string]: boolean}> {
+        return this.store.pipe(select(mapSelectors.selectVisibleLayers));
+    }
 }

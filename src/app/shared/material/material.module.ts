@@ -2,6 +2,7 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { NgModule } from '@angular/core';
 import {
     MatButtonModule,
+    MatCardModule,
     MatCheckboxModule,
     MatChipsModule,
     MatIconModule,
@@ -17,6 +18,7 @@ import {
 const MATERIAL_MODULES = [
     LayoutModule,
     MatButtonModule,
+    MatCardModule,
     MatCheckboxModule,
     MatChipsModule,
     MatIconModule,
