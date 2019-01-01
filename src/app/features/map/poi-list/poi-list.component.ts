@@ -15,7 +15,7 @@ export class PoiListComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.markers$ = this.mapService.getFeatures$();
+        this.markers$ = this.mapService.getFeatures$('POI');
     }
 
     removeMarker(marker) {

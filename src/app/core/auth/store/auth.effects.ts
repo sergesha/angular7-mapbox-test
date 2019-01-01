@@ -9,21 +9,6 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable()
 export class AuthEffects {
-    @Effect()
-    init$ = defer((): Observable<Action> => {
-        return this.authService.currentUser$.pipe(
-            map((currentUser: UserModel) => {
-                if (currentUser) {
-                    /// User logged in
-                    return new fromAuth.LoggedIn({ user: currentUser });
-                } else {
-                    /// User not logged in
-                    return new fromAuth.LoggedOut();
-                }
-            })
-        );
-    });
-
     @Effect({ dispatch: false })
     googleLogin$: Observable<Action> | void = this.actions$.pipe(
         ofType<fromAuth.GoogleLogin>(fromAuth.AuthActionTypes.GoogleLogin),
@@ -43,6 +28,20 @@ export class AuthEffects {
         catchError(error => of(new fromAuth.AuthError({ error: error })))
     );
 
+    @Effect()
+    init$ = defer((): Observable<Action> => {
+        return this.authService.currentUser$.pipe(
+            map((currentUser: UserModel) => {
+                if (currentUser) {
+                    /// User logged in
+                    return new fromAuth.LoggedIn({ user: currentUser });
+                } else {
+                    /// User not logged in
+                    return new fromAuth.LoggedOut();
+                }
+            })
+        );
+    });
     constructor(private actions$: Actions, private authService: FirebaseAuthService) {
     }
 }

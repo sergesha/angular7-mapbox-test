@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { CITY_COORDINATES } from '@app/features/map/city-coordinates';
-import { FeatureCollection } from '@app/features/map/models/feature-collection.model';
 import { GeoJsonFeature } from '@app/features/map/models/geo-json-feature.model';
 import { MapFeaturesService } from '@app/features/map/services/map-features.service';
 import * as mapboxgl from 'mapbox-gl';
@@ -31,10 +30,12 @@ export class MapViewComponent implements OnInit, OnDestroy {
     // source: any;
 
     // markers$: Observable<GeoJsonFeature[]>;
-    markersCollection$: Observable<FeatureCollection>;
-    visibleLayers$: Observable<{[key: string]: boolean}>;
+    // markersCollection$: Observable<FeatureCollection>;
+    visibleLayers$: Observable<{ [key: string]: boolean }>;
 
     selectedPoint: GeoJSON.Feature<GeoJSON.Point> | null;
+    layers;
+
 
     // constructor(private route: ActivatedRouteSnapshot,  private state: RouterStateSnapshot) {
     constructor(private mapService: MapFeaturesService,
@@ -46,8 +47,47 @@ export class MapViewComponent implements OnInit, OnDestroy {
         this.mapCenter = CITY_COORDINATES.praha;
 
         // this.markers$ = this.mapService.getFeatures$();
-        this.markersCollection$ = this.mapService.getFeatureCollection$();
+        // this.markersCollection$ = this.mapService.getFeatureCollection$();
         this.visibleLayers$ = this.mapService.getVisibleLayers$();
+
+        this.layers = {
+            pois: {
+                collection$: this.mapService.getFeatureCollection$('POI'),
+                layout: {
+                    'text-field': '{message}',
+                    'text-size': 24,
+                    'text-transform': 'uppercase',
+                    'icon-image': 'star-15',
+                    'icon-size': 2,
+                    'text-offset': [0, 1.5],
+                    'icon-allow-overlap': true
+                }
+            },
+            airports: {
+                collection$: this.mapService.getFeatureCollection$('Airport'),
+                layout: {
+                    'text-field': '{name}',
+                    'text-size': 24,
+                    'text-transform': 'uppercase',
+                    'icon-image': 'airport-15',
+                    'icon-size': 2,
+                    'text-offset': [0, 1.5],
+                    'icon-allow-overlap': true
+                }
+            },
+            ports: {
+                collection$: this.mapService.getFeatureCollection$('Port'),
+                layout: {
+                    'text-field': '{name}',
+                    'text-size': 24,
+                    'text-transform': 'uppercase',
+                    'icon-image': 'harbor-15',
+                    'icon-size': 2,
+                    'text-offset': [0, 1.5],
+                    'icon-allow-overlap': true
+                }
+            },
+        };
 
         this.subscriptions$ = [
             this.route.params
@@ -100,7 +140,8 @@ export class MapViewComponent implements OnInit, OnDestroy {
             const newMarker = new GeoJsonFeature([coordinates.lng, coordinates.lat], {
                 message: this.message,
                 description: 'My POI',
-                icon: 'triangle'
+                icon: 'triangle',
+                featureclass: 'POI'
             });
             this.mapService.createFeature(newMarker);
         }
@@ -110,104 +151,93 @@ export class MapViewComponent implements OnInit, OnDestroy {
         this.map = event;
         this.currentGeoLocation();
 
-        this.addFeatureLayer('airports', {
-            name: 'name',
-            class: 'featureclass',
-            link: 'wikipedia'
-        }, 'airport');
-        this.mapService.showLayer('airports-layer');
-
-        this.addFeatureLayer('ports', {
-            name: 'name',
-            class: 'featureclass',
-            link: 'website'
-        }, 'harbor');
-        this.mapService.showLayer('ports-layer');
-    }
-
-    addFeatureLayer(featureName, featureFields, featureIcon, featureColor?) {
-        const map = this.map;
-        let overFeature = this.overFeature;
-
-        this.map.addSource(`${featureName}-source`, {
-            type: 'geojson',
-            data: `assets/${featureName}.geojson`
-            // data: {
-            //     type: 'FeatureCollection',
-            //     features: []
-            // }
-        });
-
-        /// get source
-        // this.source = this.map.getSource('airports');
+        // this.addFeatureLayer('airports', {
+        //     name: 'name',
+        //     class: 'featureclass',
+        //     link: 'wikipedia'
+        // }, 'airport');
+        // this.mapService.showLayer('airports-layer');
         //
-        // /// subscribe to realtime database and set data source
-        // this.markers.subscribe(markers => {
-        //     let data = new FeatureCollection(markers)
-        //     this.source.setData(data)
-        // });
-
-        /// create map layers with realtime data
-        this.map.addLayer({
-            id: `${featureName}-layer`,
-            source: `${featureName}-source`,
-            type: 'symbol',
-            layout: {
-                'text-field': '{name}',
-                'text-size': 24,
-                'text-transform': 'uppercase',
-                'icon-image': `${featureIcon}-15`,
-                'icon-size': 2,
-                'text-offset': [0, 1.5]
-            },
-            paint: {
-                // 'text-color': `${featureColor}`,
-                'text-halo-color': '#fff',
-                'text-halo-width': 2
-            }
-        });
-
-        this.map.on('click', `${featureName}-layer`, function (e) {
-            const coordinates = e.features[0].geometry['coordinates'].slice();
-            const props = e.features[0].properties;
-            const description = `<strong>${props[featureFields.class]}: ${props[featureFields.name]}</strong><p><a href="//${props[featureFields.link]}" target="_blank" title="Opens in a new window">Go to Website</a></p>`;
-
-            // Ensure that if the map is zoomed out such that multiple
-            // copies of the feature are visible, the popup appears
-            // over the copy being pointed to.
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-
-            new mapboxgl.Popup()
-                .setLngLat(coordinates)
-                .setHTML(description)
-                .addTo(map);
-        });
-
-        // Change the cursor to a pointer when the mouse is over the places layer.
-        this.map.on('mouseenter', `${featureName}-layer`, function () {
-            overFeature = true;
-            map.getCanvas().style.cursor = 'help';
-        });
-
-        // Change it back to a pointer when it leaves.
-        this.map.on('mouseleave', `${featureName}-layer`, function () {
-            overFeature = false;
-            map.getCanvas().style.cursor = 'pointer';
-        });
+        // this.addFeatureLayer('ports', {
+        //     name: 'name',
+        //     class: 'featureclass',
+        //     link: 'website'
+        // }, 'harbor');
+        // this.mapService.showLayer('ports-layer');
     }
 
-    /// Helpers
-    private removeMarker(marker) {
-        // this.mapService.removeMarker(marker.$key);
-    }
-
-    private flyTo(data: GeoJsonFeature) {
-        this.map.flyTo({
-            center: data.geometry.coordinates
-        })
-    }
+    // addFeatureLayer(featureName, featureFields, featureIcon, featureColor?) {
+    //     const map = this.map;
+    //     let overFeature = this.overFeature;
+    //
+    //     this.map.addSource(`${featureName}-source`, {
+    //         type: 'geojson',
+    //         data: `assets/${featureName}.json`
+    //         // data: {
+    //         //     type: 'FeatureCollection',
+    //         //     features: []
+    //         // }
+    //     });
+    //
+    //     /// get source
+    //     // this.source = this.map.getSource('airports');
+    //     //
+    //     // /// subscribe to realtime database and set data source
+    //     // this.markers.subscribe(markers => {
+    //     //     let data = new FeatureCollection(markers)
+    //     //     this.source.setData(data)
+    //     // });
+    //
+    //     /// create map layers with realtime data
+    //     this.map.addLayer({
+    //         id: `${featureName}-layer`,
+    //         source: `${featureName}-source`,
+    //         type: 'symbol',
+    //         layout: {
+    //             'text-field': '{name}',
+    //             'text-size': 24,
+    //             'text-transform': 'uppercase',
+    //             'icon-image': `${featureIcon}-15`,
+    //             'icon-size': 2,
+    //             'text-offset': [0, 1.5]
+    //         },
+    //         paint: {
+    //             // 'text-color': `${featureColor}`,
+    //             'text-halo-color': '#fff',
+    //             'text-halo-width': 2
+    //         }
+    //     });
+    //
+    //     this.map.on('click', `${featureName}-layer`, function (e) {
+    //         const coordinates = e.features[0].geometry['coordinates'].slice();
+    //         const props = e.features[0].properties;
+    //         const description = `<strong>${props[featureFields.class]}: ${props[featureFields.name]}</strong><p><a href="//${props[featureFields.link]}" target="_blank" title="Opens in a new window">Go to Website</a></p>`;
+    //
+    //         // Ensure that if the map is zoomed out such that multiple
+    //         // copies of the feature are visible, the popup appears
+    //         // over the copy being pointed to.
+    //         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+    //             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+    //         }
+    //
+    //         new mapboxgl.Popup()
+    //             .setLngLat(coordinates)
+    //             .setHTML(description)
+    //             .addTo(map);
+    //     });
+    //
+    //     // Change the cursor to a pointer when the mouse is over the places layer.
+    //     this.map.on('mouseenter', `${featureName}-layer`, function () {
+    //         overFeature = true;
+    //         map.getCanvas().style.cursor = 'help';
+    //     });
+    //
+    //     // Change it back to a pointer when it leaves.
+    //     this.map.on('mouseleave', `${featureName}-layer`, function () {
+    //         overFeature = false;
+    //         map.getCanvas().style.cursor = 'pointer';
+    //     });
+    // }
 
     private coordinatesOf = ({ lng, lat }): LngLatLike => [lng, lat];
 

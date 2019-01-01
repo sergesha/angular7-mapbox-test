@@ -16,18 +16,21 @@ export class MapComponent implements OnInit {
             id: 'praha',
             message: 'Ahoj, Praha!',
             description: 'Ahoj, Praha!',
-            icon: 'star'
+            icon: 'star',
+            featureclass: 'POI'
         }),
         new GeoJsonFeature([CITY_COORDINATES.kaliningrad.lng, CITY_COORDINATES.kaliningrad.lat], {
             id: 'kaliningrad',
             message: 'Привет, Калининград!',
             description: 'Привет, Калининград!',
-            icon: 'star'
+            icon: 'star',
+            featureclass: 'POI'
         }),
         new GeoJsonFeature([14.48897221919043, 50.095505590365036], {
             message: 'Good Bar',
             description: '<strong>Good bar</strong><p><a href="http://www.restauracekobyla.cz/" target="_blank" title="Opens in a new window">Restaurace Kobyla</a></p>',
-            icon: 'bar'
+            icon: 'bar',
+            featureclass: 'POI'
         }),
 
     ];
@@ -37,9 +40,10 @@ export class MapComponent implements OnInit {
 
     ngOnInit() {
         // Load features from remote if any
-        this.store.dispatch(new fromMap.LoadMapFeatures());
+        // this.store.dispatch(new fromMap.LoadMapFeatures());
+        // Now loaded via store effects.
+        //
         // Load test set of features
         this.store.dispatch(new fromMap.UpsertMapFeatures({ mapFeatures: this.markers }));
     }
-
 }

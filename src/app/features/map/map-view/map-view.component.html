@@ -1,13 +1,14 @@
 <app-map-toggles></app-map-toggles>
 <!--<p>-->
-    <!--map-view works!-->
-    <!--with id: {{id}}-->
+<!--map-view works!-->
+<!--with id: {{id}}-->
 <!--</p>-->
 
 <!--TODO: [cursorStyle]="" caused error "Cannot read property 'getCanvasContainer' of undefined"-->
+<!--[cursorStyle]="overFeature ? 'help' : 'pointer'"-->
+
 <mgl-map style="height: 500px; border: solid 1px;"
          [style]="mapStyle"
-         [cursorStyle]="overFeature ? 'help' : 'pointer'"
          [zoom]="mapZoom"
          [center]="mapCenter"
          (load)="onLoad($event)"
@@ -20,32 +21,26 @@
         [trackUserLocation]="true"
         [showUserLocation]="true"
     ></mgl-control>
-    <mgl-geojson-source
-        id="pois-source"
-        [data]="markersCollection$ | async"
-    ></mgl-geojson-source>
-    <mgl-layer
-        id="pois-layer"
-        source="pois-source"
-        type="symbol"
-        [layout]="{
-            'text-field': '{message}',
-            'text-size': 24,
-            'text-transform': 'uppercase',
-            'icon-image': '{icon}-15',
-            'icon-size': 2,
-            'text-offset': [0, 1.5],
-            'icon-allow-overlap': true
-        }"
-        [paint]="{
-            'text-color': '#f16624',
-            'text-halo-color': '#fff',
-            'text-halo-width': 2
-        }"
-        (click)="onClick($event)"
-        (mouseEnter)="overFeature = true"
-        (mouseLeave)="overFeature = false"
-    ></mgl-layer>
+    <section *ngFor="let key of (layers | keysOf)">
+        <mgl-geojson-source
+            id="{{key}}-source"
+            [data]="layers[key].collection$ | async"
+        ></mgl-geojson-source>
+        <mgl-layer
+            id="{{key}}-layer"
+            source="{{key}}-source"
+            type="symbol"
+            [layout]="layers[key].layout"
+            [paint]="{
+                'text-color': '#f16624',
+                'text-halo-color': '#fff',
+                'text-halo-width': 2
+            }"
+            (click)="onClick($event)"
+            (mouseEnter)="overFeature = true"
+            (mouseLeave)="overFeature = false"
+        ></mgl-layer>
+    </section>
     <mgl-popup
         *ngIf="selectedPoint"
         [lngLat]="selectedPoint.geometry?.coordinates"
@@ -53,6 +48,7 @@
         <span [innerHTML]="selectedPoint.properties?.description"></span>
     </mgl-popup>
 </mgl-map>
+
 
 <!--<mgl-geojson-source-->
 <!--id="stations"-->

@@ -15,13 +15,25 @@ export class MapFeaturesService {
     constructor(private store: Store<AppState>) {
     }
 
-    getFeatures$(): Observable<GeoJsonFeature[]> {
-        return this.store.pipe(select(mapSelectors.selectMapFeatures));
-    }
-
-    getFeatureCollection$(): Observable<FeatureCollection> {
+    getFeatures$(featureClass?: string): Observable<GeoJsonFeature[]> {
         return this.store.pipe(
             select(mapSelectors.selectMapFeatures),
+            map(items => items
+                .filter(item => !featureClass
+                    || (item['properties']
+                        && item['properties'].featureclass
+                        && item['properties'].featureclass === featureClass))),
+        );
+    }
+
+    getFeatureCollection$(featureClass?: string): Observable<FeatureCollection> {
+        return this.store.pipe(
+            select(mapSelectors.selectMapFeatures),
+            map(items => items
+                .filter(item => !featureClass
+                    || (item['properties']
+                        && item['properties'].featureclass
+                        && item['properties'].featureclass === featureClass))),
             map(features => {
                 return {
                     'type': 'FeatureCollection',
@@ -55,7 +67,7 @@ export class MapFeaturesService {
         this.store.dispatch(new fromMap.HideMapLayer({ layer: layer }));
     }
 
-    getVisibleLayers$(): Observable<{[key: string]: boolean}> {
+    getVisibleLayers$(): Observable<{ [key: string]: boolean }> {
         return this.store.pipe(select(mapSelectors.selectVisibleLayers));
     }
 }
